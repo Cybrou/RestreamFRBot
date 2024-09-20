@@ -109,13 +109,13 @@ namespace RestreamFRBot.DiscordBot
             return Guild?.Users?.Where(u => u.Username.ToLower() == discordName).Select(u => (ulong?)u.Id).FirstOrDefault();
         }
 
-        public async Task<bool> SendRestreamNotif(string type, string round, string matchup, string host, string cohost, DateTime date)
+        public async Task<bool> SendRestreamNotif(string type, string round, string matchup, string host, string cohost, DateTime date, ulong channelId)
         {
             // Retrieve user id
             ulong? hostId = FindGuildUser(host);
             ulong? cohostId = FindGuildUser(cohost);
 
-            if (hostId == null || cohostId == null || Config.Discord.BotRestreamChannel == 0)
+            if (hostId == null || cohostId == null || channelId == 0)
             {
                 return false;
             }
@@ -129,7 +129,7 @@ namespace RestreamFRBot.DiscordBot
             sb.Append($"> Date : <t:{unixIimeStamp}>\n");
             sb.Append($"> Host par <@{hostId}> et <@{cohostId}>\n");
 
-            IMessageChannel? chan = await Client.GetChannelAsync(Config.Discord.BotRestreamChannel) as IMessageChannel;
+            IMessageChannel? chan = await Client.GetChannelAsync(channelId) as IMessageChannel;
             if (chan == null)
             {
                 return false;

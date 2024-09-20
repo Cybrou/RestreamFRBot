@@ -11,5 +11,6 @@ namespace RestreamFRBot.Configuration
         public int ModuleId { get; set; }
         public string SheetUri { get; set; } = "";
         public DateTime MinDate { get; set; } = new DateTime(2024, 09, 19);
+        public ulong BotRestreamChannel { get; set; }
     }
 }

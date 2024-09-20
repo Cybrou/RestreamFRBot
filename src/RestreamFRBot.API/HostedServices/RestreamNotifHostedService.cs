@@ -101,7 +101,7 @@ namespace RestreamFRBot.API.HostedServices
                                 string cohost = TrimBlank(csv.GetField(15)) ?? "";
 
                                 // Send notif
-                                if (await bot.SendRestreamNotif(type, round, matchtup, host, cohost, dateTime))
+                                if (await bot.SendRestreamNotif(type, round, matchtup, host, cohost, dateTime, resteamModule.BotRestreamChannel))
                                 {
                                     // Save in bdd
                                     RestreamNotif newNotif = new RestreamNotif() { RestreamModuleId = resteamModule.ModuleId, Guid = guid, SentDate = DateTime.UtcNow };
