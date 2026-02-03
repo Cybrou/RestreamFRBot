@@ -17,3 +17,5 @@ CREATE TABLE restream_notif (
 
 INSERT INTO version VALUES ('1.0.0');
 INSERT INTO restream_module VALUES (1, 'TPR S1');
+INSERT INTO restream_module VALUES (2, 'OOTR S8');
+INSERT INTO restream_module VALUES (5, 'OOTR S9');

@@ -29,7 +29,7 @@ namespace RestreamFRBot.API.HostedServices
             await CronExecuteAsync(CancellationToken.None);
         }
 
-        protected override async Task CronExecuteAsync(CancellationToken stoppingToken)
+        public override async Task CronExecuteAsync(CancellationToken stoppingToken)
         {
             try
             {
@@ -80,33 +80,42 @@ namespace RestreamFRBot.API.HostedServices
                         using StreamReader sr = new StreamReader(await resp.Content.ReadAsStreamAsync(), System.Text.Encoding.UTF8);
                         CsvConfiguration csvConfig = new CsvConfiguration(System.Globalization.CultureInfo.InvariantCulture) { Delimiter = ",", Escape = '"', NewLine = "\r\n" };
                         using CsvReader csv = new CsvReader(sr, csvConfig);
-                        while (await csv.ReadAsync())
+
+                        if (await csv.ReadAsync())
                         {
-                            string guid = csv.GetField(0) ?? "";
-                            bool isRestream = csv.GetField(8)?.ToLower() == "true";
-                            string strDatetime = csv.GetField(16) ?? "";
+                            string A1Value = (csv.GetField(0) ?? "").Trim().ToLower();
 
-                            if (!string.IsNullOrWhiteSpace(guid)
-                                && isRestream
-                                && DateTime.TryParseExact(strDatetime, "dd/MM/yyyy HH:mm:ss", null, System.Globalization.DateTimeStyles.AssumeUniversal, out DateTime dateTime)
-                                && dateTime >= resteamModule.MinDate
-                                && !(await db.RestreamNotifs.AnyAsync(r => r.RestreamModuleId == resteamModule.ModuleId && r.Guid == guid)))
+                            if (A1Value != "script")
                             {
-                                dateTime = dateTime.ToUniversalTime();
-
-                                string type = csv.GetField(2) ?? "";
-                                string matchtup = csv.GetField(3) ?? "";
-                                string round = csv.GetField(4) ?? "";
-                                string host = TrimBlank(csv.GetField(14)) ?? "";
-                                string cohost = TrimBlank(csv.GetField(15)) ?? "";
-
-                                // Send notif
-                                if (await bot.SendRestreamNotif(type, round, matchtup, host, cohost, dateTime, resteamModule.BotRestreamChannel))
+                                while (await csv.ReadAsync())
                                 {
-                                    // Save in bdd
-                                    RestreamNotif newNotif = new RestreamNotif() { RestreamModuleId = resteamModule.ModuleId, Guid = guid, SentDate = DateTime.UtcNow };
-                                    await db.RestreamNotifs.AddAsync(newNotif);
-                                    await db.SaveChangesAsync();
+                                    string guid = csv.GetField(0) ?? "";
+                                    bool isRestream = csv.GetField(8)?.ToLower() == "true";
+                                    string strDatetime = csv.GetField(16) ?? "";
+
+                                    if (!string.IsNullOrWhiteSpace(guid)
+                                        && isRestream
+                                        && DateTime.TryParseExact(strDatetime, "dd/MM/yyyy HH:mm:ss", null, System.Globalization.DateTimeStyles.AssumeUniversal, out DateTime dateTime)
+                                        && dateTime >= resteamModule.MinDate
+                                        && !(await db.RestreamNotifs.AnyAsync(r => r.RestreamModuleId == resteamModule.ModuleId && r.Guid == guid)))
+                                    {
+                                        dateTime = dateTime.ToUniversalTime();
+
+                                        string type = csv.GetField(2) ?? "";
+                                        string matchtup = csv.GetField(3) ?? "";
+                                        string round = csv.GetField(4) ?? "";
+                                        string host = TrimBlank(csv.GetField(14)) ?? "";
+                                        string cohost = TrimBlank(csv.GetField(15)) ?? "";
+
+                                        // Send notif
+                                        if (await bot.SendRestreamNotif(type, round, matchtup, host, cohost, dateTime, resteamModule.BotRestreamChannel))
+                                        {
+                                            // Save in bdd
+                                            RestreamNotif newNotif = new RestreamNotif() { RestreamModuleId = resteamModule.ModuleId, Guid = guid, SentDate = DateTime.UtcNow };
+                                            await db.RestreamNotifs.AddAsync(newNotif);
+                                            await db.SaveChangesAsync();
+                                        }
+                                    }
                                 }
                             }
                         }

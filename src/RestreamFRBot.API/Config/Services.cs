@@ -13,7 +13,7 @@ namespace RestreamFRBot.API.Config
         public static IServiceProvider Provider { get; set; }
 #pragma warning restore CS8618
 
-        public static IServiceCollection ConfigureServices(IServiceCollection services)
+        public static IServiceCollection ConfigureServices(IServiceCollection services, bool testMode = false)
         {
             services.AddControllers()
                     .AddJsonOptions(jo =>
@@ -28,8 +28,22 @@ namespace RestreamFRBot.API.Config
             services.AddSingleton<Configuration.Config>();
             services.AddSingleton<Bot>();
 
-            services.AddHostedService<DiscordBotHostedService>();
-            services.AddHostedService<RestreamNotifHostedService>();
+#if DEBUG
+            if (testMode)
+            {
+                services.AddSingleton<DiscordBotHostedService>();
+                services.AddSingleton<RestreamNotifHostedService>();
+
+                services.AddHostedService<TestHostedService>();
+            }
+            else
+            {
+#endif
+                services.AddHostedService<DiscordBotHostedService>();
+                services.AddHostedService<RestreamNotifHostedService>();
+#if DEBUG
+            }
+#endif
 
             return services;
         }

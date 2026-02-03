@@ -42,6 +42,6 @@ namespace RestreamFRBot.API.HostedServices
         /// <summary>
         /// Called when cron trigger.
         /// </summary>
-        protected abstract Task CronExecuteAsync(CancellationToken stoppingToken);
+        public abstract Task CronExecuteAsync(CancellationToken stoppingToken);
     }
 }

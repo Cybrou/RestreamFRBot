@@ -20,7 +20,9 @@ namespace RestreamFRBot.API
                 lb.AddSerilog(dispose: true);
             });
 
-            Config.Services.ConfigureServices(builder.Services);
+            bool testMode = args.Length > 0 && args[0].Trim().ToLower() == "--test";
+
+            Config.Services.ConfigureServices(builder.Services, testMode);
 
             var app = builder.Build();
 
